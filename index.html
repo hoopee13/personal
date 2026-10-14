@@ -43,8 +43,7 @@ button:focus-visible,.upload:focus-within{outline:2px solid var(--accent);outlin
 .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--muted)}
 .linkbtn{border:none;background:none;padding:0;color:var(--accent);font-size:13px;text-decoration:underline;border-radius:4px}
 .hint{font-size:13px;color:var(--muted);margin:0}
-.readout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;font-variant-numeric:tabular-nums}
-@media (max-width:420px){.readout{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.readout{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;font-variant-numeric:tabular-nums}
 .readout div{border-top:1px solid var(--line);padding-top:6px;min-width:0}
 .readout b{display:block;font-size:17px}
 .readout span{font-size:12px;color:var(--muted)}
@@ -109,7 +108,7 @@ textarea:focus-visible,input[type=tel]:focus-visible{outline:2px solid var(--acc
 <div class="wrap">
   <header>
     <h1>셀카로 보는 퍼스널 컬러</h1>
-    <p>흰 종이를 얼굴 옆에 들고 셀카를 찍은 뒤 볼, 머리카락, 흰 종이를 한 번씩 눌러 주세요. 아래 질문 4개에도 답하면 결과가 더 정확해져요. 사진은 이 브라우저 안에서만 처리되고 어디에도 전송되지 않아요.</p>
+    <p>셀카를 올리고 볼과 머리카락을 한 번씩 눌러 주세요. 아래 질문 4개에도 답하면 결과가 더 정확해져요. 사진은 이 브라우저 안에서만 처리되고 어디에도 전송되지 않아요.</p>
   </header>
 
   <div class="grid">
@@ -122,7 +121,6 @@ textarea:focus-visible,input[type=tel]:focus-visible{outline:2px solid var(--acc
         <div class="row">
           <button class="tool" id="tool-skin" aria-pressed="true"><span class="dot" id="dot-skin"></span>볼</button>
           <button class="tool" id="tool-hair" aria-pressed="false"><span class="dot" id="dot-hair"></span>머리카락</button>
-          <button class="tool" id="tool-white" aria-pressed="false"><span class="dot" id="dot-white"></span>흰 종이</button>
         </div>
         <div class="stage">
           <canvas id="cv" width="600" height="720" aria-label="사진을 누르면 선택한 지점의 색을 읽어요"></canvas>
@@ -133,9 +131,7 @@ textarea:focus-visible,input[type=tel]:focus-visible{outline:2px solid var(--acc
           <div><span>밝기 L*</span><b id="r-l">–</b></div>
           <div><span>색상각 (노란기)</span><b id="r-h">–</b></div>
           <div><span>머리카락 대비</span><b id="r-k">–</b></div>
-          <div><span>조명 보정</span><b id="r-w">꺼짐</b></div>
         </div>
-        <p class="hint" id="wb-note">흰 종이를 누르면 조명 색을 빼고 계산해요. <button class="linkbtn" id="wb-off" hidden>보정 지우기</button></p>
       </section>
 
       <section class="panel" aria-label="질문">
@@ -162,7 +158,7 @@ textarea:focus-visible,input[type=tel]:focus-visible{outline:2px solid var(--acc
         <div class="chips" id="avoid"></div>
       </div>
       <dl class="tips" id="tips"></dl>
-      <p class="note">흰 종이 보정을 해도 카메라의 피부 보정 필터까지는 되돌릴 수 없어요. 창가 자연광에서 필터 없이 찍은 사진이 가장 정확하고, 결과는 재미와 참고용으로 봐 주세요.</p>
+      <p class="note">사진 진단은 조명과 카메라 보정에 크게 흔들려요. 창가 자연광에서 필터 없이 찍은 사진이 가장 정확하고, 결과는 재미와 참고용으로 봐 주세요.</p>
     </section>
   </div>
 
@@ -170,9 +166,8 @@ textarea:focus-visible,input[type=tel]:focus-visible{outline:2px solid var(--acc
     <div class="ev-head">
       <span class="label">정확도 설문 · 체험권 추첨</span>
       <h2 id="ev-title">진단 결과가 맞았는지 알려 주세요</h2>
-      <p>설문 답변은 진단 정확도를 높이는 데 쓸게요. 원하면 체험권 추첨에도 응모할 수 있어요. 응모는 선택이라 설문만 내도 괜찮아요.</p>
+      <p id="ev-lead"></p>
     </div>
-    <dl class="ev-info" id="ev-info"></dl>
     <form class="sform" id="survey" novalidate>
       <fieldset><legend>방금 나온 결과가 내 생각과 맞나요?</legend><div class="opts" data-name="match"></div></fieldset>
       <fieldset><legend>전문가에게 퍼스널 컬러 진단을 받아 본 적 있나요?</legend><div class="opts" data-name="pro"></div></fieldset>
@@ -208,7 +203,7 @@ const CONFIG = {
   endpoint: "https://script.google.com/macros/s/AKfycbwYbEu39OCFAI1pHGRryO4umHN8uBcSln6IHWvhCYOpVEX2DEjcZYBRkAXA_Cqg7GjOyQ/exec",                                 // Apps Script 웹 앱 URL (https://script.google.com/macros/s/.../exec)
   organizer: "주최자 이름 (예: ○○ 컬러랩)",
   contact: "인스타그램 @아이디 · 이메일 주소",
-  period: "2026년 ○월 ○일 ~ ○월 ○일",
+  period: "10월 1일~30일",
   announce: "2026년 ○월 ○일, 인스타그램 공지 및 당첨자 개별 문자",
   prize: "퍼스널 컬러 1:1 진단 체험권",
   winners: 10,
@@ -250,9 +245,9 @@ const QUESTIONS = [
 const answers = {};
 
 const cv = document.getElementById("cv"), ctx = cv.getContext("2d", {willReadFrequently:true});
-let pts = {skin:{x:0.36,y:0.56}, hair:{x:0.5,y:0.12}, white:null};
+let pts = {skin:{x:0.36,y:0.56}, hair:{x:0.5,y:0.12}};
 let tool = "skin", source = null;
-const MARK = {skin:"#ff4f8b", hair:"#3fb6ff", white:"#ffc93c"};
+const MARK = {skin:"#ff4f8b", hair:"#3fb6ff"};
 for(const k in MARK) document.getElementById("dot-"+k).style.background = MARK[k];
 
 function drawSample(){
@@ -285,18 +280,10 @@ function render(){
   cv.width = Math.round(img.width * scale); cv.height = Math.round(img.height * scale);
   ctx.drawImage(img, 0, 0, cv.width, cv.height);
   const skinRGB = sample(pts.skin), hairRGB = sample(pts.hair);
-  const whiteRGB = pts.white ? sample(pts.white, true) : null;
-  // 흰 종이 기준 조명 보정: 선형 RGB에서 종이가 무채색이 되도록 채널별 이득 적용
-  let gain = [1,1,1];
-  if(whiteRGB){
-    const W = whiteRGB.map(lin), Y = 0.2126*W[0]+0.7152*W[1]+0.0722*W[2];
-    if(Math.min(...W) > 0.02) gain = W.map(c=>clamp(Y/c, 0.5, 2));
-  }
-  for(const k of ["skin","hair","white"]) if(pts[k]) drawMark(pts[k], MARK[k]);
+  for(const k of ["skin","hair"]) drawMark(pts[k], MARK[k]);
+  const gain = [1,1,1];
   const skin = skinRGB && toLab(skinRGB, gain), hair = hairRGB && toLab(hairRGB, gain);
-  document.getElementById("r-w").textContent = whiteRGB ? "켜짐" : "꺼짐";
-  document.getElementById("wb-off").hidden = !pts.white;
-  analyze(skin, hair, !!whiteRGB);
+  analyze(skin, hair);
 }
 
 function radius(){ return Math.max(6, Math.round(Math.min(cv.width, cv.height) * 0.035)); }
@@ -333,15 +320,15 @@ function drawMark(p,color){
 }
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function analyze(skin, hair, wbOn){
+function analyze(skin, hair){
   if(!skin){ return; }
   const contrast = hair ? skin.L - hair.L : 40;
   let w = clamp((skin.h - 56)/9, -1.6, 1.6);
   let light = clamp((skin.L - 64)/10, -1.6, 1.6);
   let clear = clamp((skin.C - 20)/6, -1.6, 1.6);
   let k = clamp((contrast - 42)/14, -1.6, 1.6);
-  // 보정 없이 찍은 사진은 색 신호를 덜 믿고, 답변 비중을 키움
-  if(!wbOn){ w *= 0.7; clear *= 0.7; }
+  // 사진 색은 조명에 흔들리므로 색 신호를 조금 덜 믿고, 답변 비중을 키움
+  w *= 0.7; clear *= 0.7;
   let n = 0;
   for(const q of QUESTIONS){
     const a = answers[q.id]; if(a==null) continue;
@@ -357,7 +344,7 @@ function analyze(skin, hair, wbOn){
   const ex = ORDER.map(key=>Math.exp(s[key]*1.6)), sum = ex.reduce((a,b)=>a+b,0);
   const pct = ORDER.map((key,i)=>({key, p:ex[i]/sum})).sort((a,b)=>b.p-a.p);
   const top = SEASONS[pct[0].key];
-  lastResult = {season: top.name, p: Object.fromEntries(pct.map(x=>[x.key, Math.round(x.p*100)])), wb: wbOn};
+  lastResult = {season: top.name, p: Object.fromEntries(pct.map(x=>[x.key, Math.round(x.p*100)])), wb: false};
   updateSubmitState();
 
   document.getElementById("r-l").textContent = skin.L.toFixed(0);
@@ -367,7 +354,7 @@ function analyze(skin, hair, wbOn){
   document.getElementById("s-name").textContent = top.name;
   document.getElementById("s-desc").textContent = top.desc;
   document.getElementById("basis").innerHTML =
-    `<span class="pill on">사진 분석</span><span class="pill${wbOn?" on":""}">조명 보정 ${wbOn?"적용":"없음"}</span><span class="pill${n?" on":""}">질문 ${n}/4 반영</span>`;
+    `<span class="pill on">사진 분석</span><span class="pill${n?" on":""}">질문 ${n}/4 반영</span>`;
   document.getElementById("bars").innerHTML = ORDER.map(key=>{
     const it = pct.find(x=>x.key===key), v = Math.round(it.p*100);
     return `<div class="bar${key===pct[0].key?" top":""}"><span>${SEASONS[key].name}</span><div class="track"><div class="fill" style="width:${v}%"></div></div><span>${v}%</span></div>`;
@@ -388,19 +375,18 @@ document.getElementById("qs").addEventListener("change", e=>{
   if(m){ answers[m[1]] = +e.target.value; render(); }
 });
 
-const TOOLS = ["skin","hair","white"];
+const TOOLS = ["skin","hair"];
 function setTool(t){
   tool=t;
   for(const k of TOOLS) document.getElementById("tool-"+k).setAttribute("aria-pressed", k===t);
 }
 for(const k of TOOLS) document.getElementById("tool-"+k).onclick=()=>setTool(k);
-document.getElementById("wb-off").onclick=()=>{ pts.white=null; render(); };
 
 cv.addEventListener("pointerdown", e=>{
   const r = cv.getBoundingClientRect();
   pts[tool] = {x:clamp((e.clientX-r.left)/r.width,0,1), y:clamp((e.clientY-r.top)/r.height,0,1)};
   render();
-  if(source){ if(tool==="skin") setTool("hair"); else if(tool==="hair" && !pts.white) setTool("white"); }
+  if(source && tool==="skin") setTool("hair");
 });
 
 function loadFile(e){
@@ -409,9 +395,9 @@ function loadFile(e){
   const url = URL.createObjectURL(f), img = new Image();
   img.onload = ()=>{
     source = img;
-    pts = {skin:{x:0.38,y:0.55}, hair:{x:0.5,y:0.08}, white:null};
+    pts = {skin:{x:0.38,y:0.55}, hair:{x:0.5,y:0.08}};
     document.getElementById("badge").textContent = "내 사진";
-    document.getElementById("hint").textContent = "볼(그림자·홍조 없는 평평한 부분), 머리카락, 흰 종이 순서로 눌러 주세요. 종이는 빛이 고르게 닿고 하얗게 날아가지 않은 부분이 좋아요.";
+    document.getElementById("hint").textContent = "표시된 동그라미가 볼과 머리카락에 오도록 눌러서 옮겨 주세요. 볼은 그림자나 홍조가 없는 평평한 부분이 좋아요.";
     setTool("skin"); render();
   };
   img.onerror = ()=>{ document.getElementById("hint").textContent = "이 파일은 열 수 없어요. JPG나 PNG 사진으로 다시 올려 주세요."; };
@@ -444,10 +430,7 @@ function fillDl(dl, rows){
     dt.textContent=k; dd.textContent=v; return [dt,dd];
   }));
 }
-fillDl($("ev-info"), [
-  ["주최", CONFIG.organizer], ["문의", CONFIG.contact], ["기간", CONFIG.period],
-  ["경품", `${CONFIG.prize} · 추첨 ${CONFIG.winners}명`], ["발표", CONFIG.announce]
-]);
+$("ev-lead").textContent = `설문 답변은 진단 정확도를 높이는 데 쓸게요. 원하면 ${CONFIG.prize} 추첨(${CONFIG.winners}명, ${CONFIG.period})에도 응모할 수 있어요. 응모는 선택이라 설문만 내도 괜찮아요.`;
 fillDl($("consent-dl"), [
   ["수집 항목", "휴대폰 번호"], ["이용 목적", "경품 당첨 안내"],
   ["보관 기간", `당첨자 발표 후 ${CONFIG.keepDays}일 이내 파기`]
@@ -476,7 +459,7 @@ $("survey").addEventListener("change", e=>{
 function showDone(raffle){
   $("survey").hidden = true; $("done").hidden = false;
   $("done-msg").textContent = raffle
-    ? `응모가 접수됐어요. 발표: ${CONFIG.announce}. 당첨되면 입력한 번호로 문자를 드려요.`
+    ? "응모가 접수됐어요. 당첨되면 입력한 번호로 문자를 드려요."
     : "설문 응답이 저장됐어요. 더 정확한 진단을 만드는 데 쓸게요.";
 }
 
