@@ -10,16 +10,16 @@
 /* Layout: 왼쪽 사진 스튜디오(캔버스 + 샘플 지점 + 질문), 오른쪽 진단 카드(계절 + 팔레트). 좁은 화면에선 위아래로 쌓임 */
 :root{
   --bg:#f6f4f7; --surface:#ffffff; --ink:#221d26; --muted:#6f6676; --line:#e2dde6;
-  --accent:#6b2e5c; --accent-soft:#f0e4ec;
+  --accent:#6b2e5c; --accent-soft:#f0e4ec; --danger:#b3261e;
   --display:"Gowun Batang", "Nanum Myeongjo", Georgia, serif;
   --body:"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#17141a; --surface:#221e26; --ink:#efe9f2; --muted:#a79dae; --line:#3a3340;
-  --accent:#e0a3cf; --accent-soft:#3a2636; color-scheme:dark}}
+  --accent:#e0a3cf; --accent-soft:#3a2636; --danger:#ff8a80; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#17141a; --surface:#221e26; --ink:#efe9f2; --muted:#a79dae; --line:#3a3340;
-  --accent:#e0a3cf; --accent-soft:#3a2636; color-scheme:dark}
+  --accent:#e0a3cf; --accent-soft:#3a2636; --danger:#ff8a80; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;padding:0 16px}
 .wrap{max-width:1040px;margin:0 auto;padding-block:32px 48px;display:grid;gap:28px}
@@ -78,6 +78,29 @@ dl.tips{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margi
 dt{color:var(--muted);font-size:13px}
 dd{margin:0}
 .note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px;margin:0}
+.event{gap:20px;position:relative}
+.event h2{font-family:var(--display);font-size:clamp(24px,4vw,30px);margin:4px 0 0;line-height:1.2;text-wrap:balance}
+.ev-head p{margin:8px 0 0;max-width:62ch}
+.ev-info{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;margin:0;padding:14px 16px;background:var(--bg);border-radius:10px;max-width:720px}
+.sform{display:grid;gap:22px;max-width:720px}
+.muted{color:var(--muted);font-weight:400}
+.flabel{font-weight:600;display:block;margin-bottom:8px}
+textarea,input[type=tel]{font:inherit;font-size:15px;width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);color:var(--ink)}
+textarea{min-height:80px;resize:vertical}
+textarea:focus-visible,input[type=tel]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:none}
+.raffle{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:18px}
+.raffle-fields{display:grid;gap:10px}
+.consent{border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;display:grid;gap:10px}
+.safe{font-size:13px;padding:12px 14px;border-radius:10px;background:var(--accent-soft);margin:0}
+.err{color:var(--danger);font-size:14px;margin:0;font-weight:600}
+.submit{background:var(--accent);color:var(--surface);border-color:var(--accent);font-weight:600;padding:10px 22px}
+.submit:disabled{opacity:.5;cursor:not-allowed}
+.hp{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.done{padding:18px 20px;border-radius:10px;background:var(--accent-soft);max-width:720px}
+.done h3{font-family:var(--display);margin:0 0 6px;font-size:22px}
+.done p{margin:0}
 @media (prefers-reduced-motion:reduce){.fill{transition:none}}
 </style>
 </head>
@@ -142,9 +165,57 @@ dd{margin:0}
       <p class="note">흰 종이 보정을 해도 카메라의 피부 보정 필터까지는 되돌릴 수 없어요. 창가 자연광에서 필터 없이 찍은 사진이 가장 정확하고, 결과는 재미와 참고용으로 봐 주세요.</p>
     </section>
   </div>
+
+  <section class="panel event" aria-labelledby="ev-title">
+    <div class="ev-head">
+      <span class="label">정확도 설문 · 체험권 추첨</span>
+      <h2 id="ev-title">진단 결과가 맞았는지 알려 주세요</h2>
+      <p>설문 답변은 진단 정확도를 높이는 데 쓸게요. 원하면 체험권 추첨에도 응모할 수 있어요. 응모는 선택이라 설문만 내도 괜찮아요.</p>
+    </div>
+    <dl class="ev-info" id="ev-info"></dl>
+    <form class="sform" id="survey" novalidate>
+      <fieldset><legend>방금 나온 결과가 내 생각과 맞나요?</legend><div class="opts" data-name="match"></div></fieldset>
+      <fieldset><legend>전문가에게 퍼스널 컬러 진단을 받아 본 적 있나요?</legend><div class="opts" data-name="pro"></div></fieldset>
+      <fieldset id="pro-result-set" hidden><legend>그때 받은 결과는 무엇이었나요?</legend><div class="opts" data-name="proResult"></div></fieldset>
+      <fieldset><legend>친구에게 이 테스트를 추천할 생각이 있나요?</legend><div class="opts" data-name="recommend"></div></fieldset>
+      <div><label class="flabel" for="comment">더 좋아지려면 무엇이 필요할까요? <span class="muted">(선택)</span></label><textarea id="comment" maxlength="300"></textarea></div>
+
+      <div class="raffle">
+        <label class="check"><input type="checkbox" id="raffle"><span><b>체험권 추첨에 응모할게요</b> <span class="muted">(선택)</span></span></label>
+        <div class="raffle-fields" id="raffle-fields" hidden>
+          <label class="flabel" for="phone" style="margin:0">당첨 안내를 받을 휴대폰 번호</label>
+          <input type="tel" id="phone" inputmode="numeric" autocomplete="tel" placeholder="010-1234-5678" maxlength="13">
+          <div class="consent">
+            <b>개인정보 수집·이용 동의 (응모 시 필수)</b>
+            <dl class="tips" id="consent-dl"></dl>
+            <span class="muted">동의하지 않을 수 있어요. 동의하지 않으면 추첨에는 응모할 수 없지만 설문 제출은 그대로 할 수 있어요.</span>
+            <label class="check"><input type="checkbox" id="consent">위 내용을 읽었고 동의합니다</label>
+          </div>
+        </div>
+      </div>
+      <div class="hp" aria-hidden="true"><label for="website">이 칸은 비워 두세요</label><input type="text" id="website" tabindex="-1" autocomplete="off"></div>
+      <p class="safe" id="safe"></p>
+      <p class="err" id="err" role="alert" hidden></p>
+      <div class="row"><button class="submit" type="submit" id="submit">설문 제출하기</button><span class="hint" id="submit-hint"></span></div>
+    </form>
+    <div class="done" id="done" hidden><h3>제출됐어요. 참여해 주셔서 고마워요!</h3><p id="done-msg"></p></div>
+  </section>
 </div>
 
 <script>
+// ===== 운영자 설정: 아래 값을 바꿔 주세요 =====
+const CONFIG = {
+  endpoint: "https://script.google.com/macros/s/AKfycbwYbEu39OCFAI1pHGRryO4umHN8uBcSln6IHWvhCYOpVEX2DEjcZYBRkAXA_Cqg7GjOyQ/exec",                                 // Apps Script 웹 앱 URL (https://script.google.com/macros/s/.../exec)
+  organizer: "주최자 이름 (예: ○○ 컬러랩)",
+  contact: "인스타그램 @아이디 · 이메일 주소",
+  period: "2026년 ○월 ○일 ~ ○월 ○일",
+  announce: "2026년 ○월 ○일, 인스타그램 공지 및 당첨자 개별 문자",
+  prize: "퍼스널 컬러 1:1 진단 체험권",
+  winners: 10,
+  keepDays: 30                                    // 발표 후 연락처 파기까지 일수
+};
+// ============================================
+
 const SEASONS = {
   spring:{name:"봄 웜톤",en:"SPRING WARM",desc:"밝고 노란 기가 도는 피부에 맑은 색이 잘 받는 타입이에요. 생기 있는 코럴과 피치 계열이 얼굴을 환하게 만들어요.",
     best:[["#FF8A65","코럴"],["#FFB38A","피치"],["#FFD54F","병아리"],["#9CCC65","연두"],["#4FC3F7","아쿠아"],["#F5E6C8","아이보리"]],
@@ -286,6 +357,8 @@ function analyze(skin, hair, wbOn){
   const ex = ORDER.map(key=>Math.exp(s[key]*1.6)), sum = ex.reduce((a,b)=>a+b,0);
   const pct = ORDER.map((key,i)=>({key, p:ex[i]/sum})).sort((a,b)=>b.p-a.p);
   const top = SEASONS[pct[0].key];
+  lastResult = {season: top.name, p: Object.fromEntries(pct.map(x=>[x.key, Math.round(x.p*100)])), wb: wbOn};
+  updateSubmitState();
 
   document.getElementById("r-l").textContent = skin.L.toFixed(0);
   document.getElementById("r-h").textContent = skin.h.toFixed(0) + "°";
@@ -346,6 +419,99 @@ function loadFile(e){
 }
 document.getElementById("file").addEventListener("change", loadFile);
 document.getElementById("cam").addEventListener("change", loadFile);
+
+// ===== 설문 · 추첨 =====
+let lastResult = null;
+const $ = id=>document.getElementById(id);
+const SURVEY_OPTS = {
+  match:["매우 맞다","대체로 맞다","반반이다","별로 안 맞다","전혀 안 맞다"],
+  pro:["있다","없다"],
+  proResult:["봄 웜","여름 쿨","가을 웜","겨울 쿨","기억 안 남"],
+  recommend:["꼭 추천할래요","추천할래요","보통이에요","추천 안 할래요"]
+};
+document.querySelectorAll("#survey .opts[data-name]").forEach(box=>{
+  const name = box.dataset.name;
+  SURVEY_OPTS[name].forEach((t,i)=>{
+    const l = document.createElement("label"); l.className = "opt";
+    const inp = document.createElement("input");
+    inp.type = "radio"; inp.name = "s-"+name; inp.id = `s-${name}-${i}`; inp.value = t;
+    l.append(inp, t); box.append(l);
+  });
+});
+function fillDl(dl, rows){
+  dl.replaceChildren(...rows.flatMap(([k,v])=>{
+    const dt=document.createElement("dt"), dd=document.createElement("dd");
+    dt.textContent=k; dd.textContent=v; return [dt,dd];
+  }));
+}
+fillDl($("ev-info"), [
+  ["주최", CONFIG.organizer], ["문의", CONFIG.contact], ["기간", CONFIG.period],
+  ["경품", `${CONFIG.prize} · 추첨 ${CONFIG.winners}명`], ["발표", CONFIG.announce]
+]);
+fillDl($("consent-dl"), [
+  ["수집하는 곳", CONFIG.organizer], ["수집 항목", "휴대폰 번호"], ["이용 목적", "경품 당첨 안내"],
+  ["보관 기간", `당첨자 발표 후 ${CONFIG.keepDays}일 이내 파기`]
+]);
+$("safe").textContent = `사진은 어디에도 저장되거나 전송되지 않고, 진단 결과와 설문 답만 저장돼요. 주최 측은 당첨 안내 때 결제, 계좌번호, 카드 정보를 요구하거나 다른 링크를 누르라고 하지 않아요. 이런 연락을 받으면 사칭이니 응하지 마세요.`;
+
+let submittedBefore = false;
+try{ submittedBefore = localStorage.getItem("pc-submitted")==="1"; }catch(_){}
+
+function updateSubmitState(){
+  const btn = $("submit"); if(!btn) return;
+  btn.disabled = !source;
+  $("submit-hint").textContent = !source ? "내 사진으로 진단한 뒤에 제출할 수 있어요."
+    : submittedBefore ? "이 브라우저에서 이미 제출한 적이 있어요. 응모는 번호당 한 번만 인정돼요." : "";
+}
+function pick(name){ const el=document.querySelector(`input[name="s-${name}"]:checked`); return el?el.value:""; }
+
+$("survey").addEventListener("change", e=>{
+  if(e.target.name==="s-pro") $("pro-result-set").hidden = e.target.value!=="있다";
+  if(e.target.id==="raffle"){
+    $("raffle-fields").hidden = !e.target.checked;
+    $("submit").textContent = e.target.checked ? "설문 제출하고 응모하기" : "설문 제출하기";
+  }
+});
+
+function showDone(raffle){
+  $("survey").hidden = true; $("done").hidden = false;
+  $("done-msg").textContent = raffle
+    ? `응모가 접수됐어요. 발표: ${CONFIG.announce}. 당첨되면 입력한 번호로 문자를 드려요.`
+    : "설문 응답이 저장됐어요. 더 정확한 진단을 만드는 데 쓸게요.";
+}
+
+$("survey").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const err=$("err"); err.hidden=true;
+  const fail=m=>{ err.textContent=m; err.hidden=false; };
+  if(!source || !lastResult) return fail("먼저 내 사진으로 진단해 주세요. 예시 그림 결과로는 제출할 수 없어요.");
+  const match=pick("match"), pro=pick("pro"), recommend=pick("recommend");
+  if(!match||!pro||!recommend) return fail("선택 표시가 없는 설문 3개에 모두 답해 주세요.");
+  const proResult = pro==="있다" ? pick("proResult") : "";
+  if(pro==="있다" && !proResult) return fail("전문 진단 결과를 골라 주세요. 기억나지 않으면 '기억 안 남'을 골라 주세요.");
+  const raffle=$("raffle").checked;
+  let phone="";
+  if(raffle){
+    const d=$("phone").value.replace(/\D/g,"");
+    if(!/^01[016789]\d{7,8}$/.test(d)) return fail("휴대폰 번호를 010-1234-5678 형식으로 입력해 주세요.");
+    if(!$("consent").checked) return fail("응모하려면 개인정보 수집·이용에 동의해 주세요. 설문만 내려면 응모 체크를 해제해 주세요.");
+    phone=d.replace(/^(\d{3})(\d{3,4})(\d{4})$/,"$1-$2-$3");
+  }
+  if($("website").value) return showDone(raffle); // 자동 입력 봇 차단
+  if(!CONFIG.endpoint) return fail("아직 응답을 저장할 시트가 연결되지 않았어요. 주최 측에 알려 주세요.");
+  const qa={}; QUESTIONS.forEach(q=>{ qa[q.id] = answers[q.id]!=null ? q.opts[answers[q.id]][0] : ""; });
+  const payload={ result:lastResult.season, p:lastResult.p, wb:lastResult.wb, ...qa,
+    match, pro, proResult, recommend, comment:$("comment").value.trim().slice(0,300),
+    raffle, phone, consent: raffle && $("consent").checked };
+  const btn=$("submit"), label=btn.textContent; btn.disabled=true; btn.textContent="보내는 중…";
+  try{
+    await fetch(CONFIG.endpoint,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+    try{ localStorage.setItem("pc-submitted","1"); }catch(_){}
+    showDone(raffle);
+  }catch(_){
+    fail("인터넷 연결이 불안정해서 보내지 못했어요. 잠시 후 다시 눌러 주세요.");
+  }finally{ btn.disabled=false; btn.textContent=label; }
+});
 
 render();
 </script>
